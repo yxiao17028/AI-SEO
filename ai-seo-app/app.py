@@ -97,6 +97,15 @@ class AIResult(db.Model):
     payload = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
+class ContactMessage(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=True)  # Nullable for non-logged-in users
+    name = db.Column(db.String(100), nullable=False)
+    email = db.Column(db.String(160), nullable=False)
+    subject = db.Column(db.String(200), nullable=False)
+    message = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)   
+
 
 def create_app(test_config=None):
     app = Flask(__name__)
@@ -300,6 +309,39 @@ def create_app(test_config=None):
     def provider_list():
         return jsonify({key: {k: v for k, v in cfg.items() if k != "base_url"}
                         for key, cfg in PROVIDERS.items()})
+   
+    @app.route("/privacy")
+    def privacy():
+        return render_template("privacy.html")
+    
+    @app.route("/terms")
+    def terms():
+        return render_template("terms.html")
+
+    @app.route("/contact", methods=["GET", "POST"])
+    def contact():
+        if request.method == "POST":
+            name = request.form.get("name", "").strip()
+            email = request.form.get("email", "").strip()
+            subject = request.form.get("subject", "").strip()
+            message = request.form.get("message", "").strip()
+            
+            if not name or not email or not subject or not message:
+                flash("All fields are required.", "error")
+            else:
+                msg = ContactMessage(
+                    user_id=session.get("user_id"),
+                    name=name,
+                    email=email,
+                    subject=subject,
+                    message=message
+                )
+                db.session.add(msg)
+                db.session.commit()
+                flash("Your message has been sent. We'll respond shortly.", "success")
+                return redirect(url_for("contact"))
+        
+        return render_template("contact.html")
 
     @app.errorhandler(404)
     def not_found(_):
