@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<header class="page-head">
+    <div>
+        <p class="eyebrow">⚖️ Legal & Compliance</p>
+        <h1>Terms & Conditions</h1>
+        <p>Last updated: <strong>June 2026</strong></p>
+    </div>
+    <a href="{{ url_for('index') }}" class="btn small" style="align-self:center;">← Back to Home</a>
+</header>
+
+<div class="panel" style="max-width: 960px; margin: 0 auto; padding: 2.5rem;">
+    <p style="font-size: 1.1rem; color: var(--text-secondary); margin-bottom: 2rem;">
+        By using AI SEO Studio, you agree to these terms. Please read them carefully.
+    </p>
+
+    <div style="display: flex; flex-direction: column; gap: 1.8rem;">
+        <!-- Section 1 -->
+        <div style="border-left: 4px solid var(--primary); padding-left: 1.2rem;">
+            <h4 style="margin-bottom: 0.3rem;">1. Acceptance of Terms</h4>
+            <p style="color: var(--text-secondary);">
+                By accessing or using AI SEO Studio, you agree to be bound by these Terms. 
+                This is a <strong>student MVP project</strong> created for educational and portfolio purposes.
+            </p>
+        </div>
+
+        <!-- Section 2 -->
+        <div style="border-left: 4px solid var(--primary); padding-left: 1.2rem;">
+            <h4 style="margin-bottom: 0.3rem;">2. No Guarantees</h4>
+            <p style="color: var(--text-secondary);">
+                SEO analysis and AI recommendations are provided <strong>"as is"</strong>. 
+                We do not guarantee higher search rankings, increased traffic, or AI citation. 
+                Search engine algorithms change frequently — use this tool as a guide, not a promise.
+            </p>
+        </div>
+
+        <!-- Section 3 -->
+        <div style="border-left: 4px solid var(--primary); padding-left: 1.2rem;">
+            <h4 style="margin-bottom: 0.3rem;">3. User Responsibility</h4>
+            <p style="color: var(--text-secondary);">
+                You are responsible for the content you submit (URLs, text, API keys). 
+                Do not submit illegal, harmful, or copyrighted material without permission. 
+                You agree to use this platform lawfully.
+            </p>
+        </div>
+
+        <!-- Section 4 -->
+        <div style="border-left: 4px solid var(--primary); padding-left: 1.2rem;">
+            <h4 style="margin-bottom: 0.3rem;">4. External AI Providers</h4>
+            <p style="color: var(--text-secondary);">
+                When you use integrated AI providers (OpenRouter, Google, Groq, OpenCode), 
+                you are subject to their respective terms of service and data handling policies. 
+                We act solely as a middleware bridge.
+            </p>
+        </div>
+
+        <!-- Section 5 -->
+        <div style="border-left: 4px solid var(--primary); padding-left: 1.2rem;">
+            <h4 style="margin-bottom: 0.3rem;">5. Limitation of Liability</h4>
+            <p style="color: var(--text-secondary);">
+                We are <strong>not liable</strong> for any direct, indirect, or consequential damages 
+                arising from the use of this tool. It is intended for learning, experimentation, 
+                and internal use.
+            </p>
+        </div>
+
+        <!-- Section 6 -->
+        <div style="border-left: 4px solid var(--primary); padding-left: 1.2rem;">
+            <h4 style="margin-bottom: 0.3rem;">6. Modifications</h4>
+            <p style="color: var(--text-secondary);">
+                We reserve the right to update these terms at any time. 
+                Continued use constitutes acceptance of the updated terms.
+            </p>
+        </div>
+    </div>
+
+    <div style="margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border); text-align: center; color: var(--text-muted);">
+        <p style="font-size: 0.9rem;">If you do not agree, please do not use the platform.</p>
+        <div style="margin-top: 1rem;">
+            <a href="{{ url_for('privacy') }}" class="btn small" style="background: var(--bg-secondary);">Privacy Policy</a>
+            <a href="{{ url_for('terms') }}" class="btn small" style="background: var(--bg-secondary);">Terms & Conditions</a>
+            <a href="{{ url_for('contact') }}" class="btn small" style="background: var(--bg-secondary);">Contact Us</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

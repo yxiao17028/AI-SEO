@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<header class="page-head">
+    <div>
+        <p class="eyebrow">📬 Get in touch</p>
+        <h1>Contact Us</h1>
+        <p>Have questions or feedback? We'd love to hear from you.</p>
+    </div>
+    <a href="{{ url_for('index') }}" class="btn small" style="align-self:center;">← Back to Home</a>
+</header>
+
+<div class="grid-two align-start" style="max-width: 1100px; margin: 0 auto;">
+    <!-- Contact Form -->
+    <form class="panel" method="post" style="padding: 2rem;">
+        <h2 style="margin-bottom: 1.5rem;">Send a Message</h2>
+        
+        <label>Your Name
+            <input type="text" name="name" required placeholder="e.g. Ahmad R.">
+        </label>
+        
+        <label>Email Address
+            <input type="email" name="email" required placeholder="you@example.com">
+        </label>
+        
+        <label>Subject
+            <input type="text" name="subject" required placeholder="Brief subject line">
+        </label>
+        
+        <label>Message
+            <textarea name="message" rows="6" required placeholder="Describe your question or feedback in detail..."></textarea>
+        </label>
+
+        <button class="btn primary full" type="submit" style="margin-top: 0.5rem;">✉️ Send Message</button>
+    </form>
+
+    <!-- Sidebar Info -->
+    <section class="panel" style="padding: 2rem; display: flex; flex-direction: column; gap: 1.5rem;">
+        <h2>Other ways to reach us</h2>
+        
+        <div style="display: flex; align-items: flex-start; gap: 0.8rem;">
+            <span style="font-size: 1.5rem;">📧</span>
+            <div>
+                <strong>Email</strong>
+                <p style="color: var(--text-secondary); margin: 0;">support@aiseo-studio.local <span style="font-size:0.8rem; opacity:0.6;">(demo only)</span></p>
+            </div>
+        </div>
+
+        <div style="display: flex; align-items: flex-start; gap: 0.8rem;">
+            <span style="font-size: 1.5rem;">🐙</span>
+            <div>
+                <strong>Project Info</strong>
+                <p style="color: var(--text-secondary); margin: 0;">This is a student MVP. For source code questions, check the documentation.</p>
+            </div>
+        </div>
+
+        <div style="display: flex; align-items: flex-start; gap: 0.8rem;">
+            <span style="font-size: 1.5rem;">⏳</span>
+            <div>
+                <strong>Response Time</strong>
+                <p style="color: var(--text-secondary); margin: 0;">We aim to reply within 24-48 hours (simulated for demonstration).</p>
+            </div>
+        </div>
+
+        <div style="margin-top: 1rem; padding-top: 1.5rem; border-top: 1px solid var(--border);">
+            <p style="font-size: 0.9rem; color: var(--text-muted); text-align: center;">
+                Your message is saved securely in our database.
+            </p>
+            <div style="display: flex; justify-content: center; gap: 0.8rem; flex-wrap: wrap;">
+                <a href="{{ url_for('privacy') }}" class="btn small" style="background: var(--bg-secondary);">Privacy Policy</a>
+                <a href="{{ url_for('terms') }}" class="btn small" style="background: var(--bg-secondary);">Terms & Conditions</a>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

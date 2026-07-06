@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<header class="page-head">
+    <div>
+        <p class="eyebrow">📜 Legal & Compliance</p>
+        <h1>Privacy Policy</h1>
+        <p>Last updated: <strong>June 2026</strong></p>
+    </div>
+    <a href="{{ url_for('index') }}" class="btn small" style="align-self:center;">← Back to Home</a>
+</header>
+
+<div class="panel" style="max-width: 960px; margin: 0 auto; padding: 2.5rem;">
+    <p style="font-size: 1.1rem; color: var(--text-secondary); margin-bottom: 2rem;">
+        Your privacy matters to us. This policy explains how we handle your data when you use AI SEO Studio.
+    </p>
+
+    <div style="display: flex; flex-direction: column; gap: 1.8rem;">
+        <!-- Section 1 -->
+        <div style="border-left: 4px solid var(--primary); padding-left: 1.2rem;">
+            <h4 style="margin-bottom: 0.3rem;">1. Information We Collect</h4>
+            <p style="color: var(--text-secondary);">
+                When you register, we collect your <strong>name</strong> and <strong>email address</strong>. 
+                When you add a website, we store the <strong>URL</strong> and optional details you provide. 
+                <span class="highlight" style="background: #fff3cd; padding: 0.1rem 0.4rem; border-radius: 4px;">
+                    We do <strong>not</strong> store your AI provider API keys
+                </span> 
+                — they are used only during the current request and then discarded.
+            </p>
+        </div>
+
+        <!-- Section 2 -->
+        <div style="border-left: 4px solid var(--primary); padding-left: 1.2rem;">
+            <h4 style="margin-bottom: 0.3rem;">2. How We Use It</h4>
+            <p style="color: var(--text-secondary);">
+                We use your data to operate the dashboard, run SEO audits, generate AI recommendations, and save your history. 
+                Your email is used for login and account recovery.
+            </p>
+        </div>
+
+        <!-- Section 3 -->
+        <div style="border-left: 4px solid var(--primary); padding-left: 1.2rem;">
+            <h4 style="margin-bottom: 0.3rem;">3. Data Storage & Security</h4>
+            <p style="color: var(--text-secondary);">
+                All data (except API keys) is stored in a SQLite database. Passwords are securely hashed using 
+                Werkzeug's hashing utilities. We implement industry-standard practices to protect your information.
+            </p>
+        </div>
+
+        <!-- Section 4 -->
+        <div style="border-left: 4px solid var(--primary); padding-left: 1.2rem;">
+            <h4 style="margin-bottom: 0.3rem;">4. Cookies</h4>
+            <p style="color: var(--text-secondary);">
+                We use a session cookie to keep you logged in. <strong>No third-party tracking cookies</strong> are used. 
+                We respect your privacy.
+            </p>
+        </div>
+
+        <!-- Section 5 -->
+        <div style="border-left: 4px solid var(--primary); padding-left: 1.2rem;">
+            <h4 style="margin-bottom: 0.3rem;">5. Third-Party AI Providers</h4>
+            <p style="color: var(--text-secondary);">
+                If you choose to use an external AI provider (OpenRouter, Google, Groq, OpenCode), your content and API key 
+                are sent directly to their servers to generate recommendations. We act as a secure middle-layer and 
+                <strong>do not store your key</strong>.
+            </p>
+        </div>
+
+        <!-- Section 6 -->
+        <div style="border-left: 4px solid var(--primary); padding-left: 1.2rem;">
+            <h4 style="margin-bottom: 0.3rem;">6. Your Rights</h4>
+            <p style="color: var(--text-secondary);">
+                You may delete your websites and analysis history at any time via the dashboard. 
+                If you wish to delete your entire account, please <a href="{{ url_for('contact') }}">contact us</a>.
+            </p>
+        </div>
+    </div>
+
+    <div style="margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border); text-align: center; color: var(--text-muted);">
+        <p style="font-size: 0.9rem;">This is a student MVP project. Data is handled with reasonable care for educational purposes.</p>
+        <div style="margin-top: 1rem;">
+            <a href="{{ url_for('privacy') }}" class="btn small" style="background: var(--bg-secondary);">Privacy Policy</a>
+            <a href="{{ url_for('terms') }}" class="btn small" style="background: var(--bg-secondary);">Terms & Conditions</a>
+            <a href="{{ url_for('contact') }}" class="btn small" style="background: var(--bg-secondary);">Contact Us</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
