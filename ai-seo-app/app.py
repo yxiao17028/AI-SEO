@@ -567,5 +567,25 @@ def friendly_error(exc):
 
 app = create_app()
 
+# ============================================================
+# YUNNHENG'S PAGES
+# ============================================================
+
+@app.route('/privacy')
+def privacy():
+    return render_template('privacy.html')
+
+@app.route('/terms')
+def terms():
+    return render_template('terms.html')
+
+@app.route('/contact', methods=['GET', 'POST'])
+def contact():
+    return render_template('contact.html')
+
+@app.route('/builder', methods=['GET', 'POST'])
+def builder():
+    return render_template('builder.html')
+    
 if __name__ == "__main__":
     app.run(debug=True)
