@@ -9,6 +9,7 @@ from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from html.parser import HTMLParser
+import sqlite3
 
 # Allow insecure HTTP for local OAuth debugging
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
@@ -26,6 +27,107 @@ CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
 REDIRECT_URI = os.getenv("GOOGLE_REDIRECT_URI")
 SERP_API_KEY = os.getenv("SERP_API_KEY")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+
+# ========================================
+# DATABASE FUNCTIONS
+# ========================================
+
+DATABASE = 'backlinks.db'
+
+def init_db():
+    """Create the database and table if they don't exist"""
+    conn = sqlite3.connect(DATABASE)
+    c = conn.cursor()
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS backlinks (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            source_url TEXT NOT NULL,
+            target_url TEXT NOT NULL,
+            anchor_text TEXT,
+            follow_type TEXT DEFAULT 'follow',
+            domain_authority INTEGER DEFAULT 0,
+            date_found TEXT
+        )
+    ''')
+    conn.commit()
+    conn.close()
+    print("✅ Database initialized!")
+
+def save_backlink(source_url, target_url, anchor_text, follow_type, domain_authority):
+    """Save a new backlink to the database"""
+    conn = sqlite3.connect(DATABASE)
+    c = conn.cursor()
+    c.execute('''
+        INSERT INTO backlinks (source_url, target_url, anchor_text, follow_type, domain_authority, date_found)
+        VALUES (?, ?, ?, ?, ?, ?)
+    ''', (source_url, target_url, anchor_text, follow_type, domain_authority, datetime.datetime.now().strftime('%Y-%m-%d')))
+    conn.commit()
+    new_id = c.lastrowid
+    conn.close()
+    return new_id
+
+def get_all_backlinks():
+    """Get all backlinks from the database"""
+    conn = sqlite3.connect(DATABASE)
+    c = conn.cursor()
+    c.execute('SELECT * FROM backlinks ORDER BY id DESC')
+    rows = c.fetchall()
+    conn.close()
+    
+    backlinks = []
+    for row in rows:
+        backlinks.append({
+            'id': row[0],
+            'source_url': row[1],
+            'target_url': row[2],
+            'anchor_text': row[3] or '',
+            'follow_type': row[4] or 'follow',
+            'domain_authority': row[5] or 0,
+            'date_found': row[6] or ''
+        })
+    return backlinks
+
+def get_backlink_by_id(id):
+    """Get a single backlink by ID"""
+    conn = sqlite3.connect(DATABASE)
+    c = conn.cursor()
+    c.execute('SELECT * FROM backlinks WHERE id = ?', (id,))
+    row = c.fetchone()
+    conn.close()
+    if row:
+        return {
+            'id': row[0],
+            'source_url': row[1],
+            'target_url': row[2],
+            'anchor_text': row[3] or '',
+            'follow_type': row[4] or 'follow',
+            'domain_authority': row[5] or 0,
+            'date_found': row[6] or ''
+        }
+    return None
+
+def delete_backlink_from_db(id):
+    """Delete a backlink by ID"""
+    conn = sqlite3.connect(DATABASE)
+    c = conn.cursor()
+    c.execute('DELETE FROM backlinks WHERE id = ?', (id,))
+    conn.commit()
+    conn.close()
+
+def add_sample_data():
+    """Add sample backlinks if database is empty"""
+    backlinks = get_all_backlinks()
+    if len(backlinks) == 0:
+        samples = [
+            ('https://developers.google.com/search', 'https://apexseo.rentsmartprop.com.my/', 'Google Search Central', 'follow', 94),
+            ('https://moz.com/', 'https://apexseo.rentsmartprop.com.my/', 'Moz SEO tools', 'follow', 87),
+            ('https://backlinko.com/', 'https://apexseo.rentsmartprop.com.my/', 'Backlinko SEO blog', 'follow', 84),
+            ('https://www.semrush.com/', 'https://apexseo.rentsmartprop.com.my/', 'Semrush SEO platform', 'follow', 91),
+            ('https://ahrefs.com/', 'https://apexseo.rentsmartprop.com.my/', 'Ahrefs SEO tools', 'follow', 89),
+        ]
+        for sample in samples:
+            save_backlink(*sample)
+        print("✅ Sample data added!")
 
 # GSC Read-only permission Scope
 SCOPES = ['https://www.googleapis.com/auth/webmasters.readonly']
@@ -631,5 +733,107 @@ def audit_website():
     except Exception as e:
         return jsonify({"error": f"Failed to audit website: {str(e)}"}), 500
 
+ # ========================================
+# BACKLINK ROUTES
+# ========================================
+
+@app.route('/api/backlinks', methods=['GET'])
+def get_backlinks():
+    """Get all backlinks from database"""
+    backlinks = get_all_backlinks()
+    return jsonify(backlinks)
+
+@app.route('/api/backlinks/add', methods=['POST'])
+def add_backlink():
+    """Add a new backlink to database"""
+    data = request.json
+    if not data:
+        return jsonify({'error': 'No data provided'}), 400
+    
+    source_url = data.get('source_url')
+    target_url = data.get('target_url')
+    
+    if not source_url or not target_url:
+        return jsonify({'error': 'Source URL and Target URL are required'}), 400
+    
+    new_id = save_backlink(
+        source_url,
+        target_url,
+        data.get('anchor_text', ''),
+        data.get('follow_type', 'follow'),
+        data.get('domain_authority', 0)
+    )
+    
+    new_backlink = get_backlink_by_id(new_id)
+    
+    return jsonify({
+        'success': True,
+        'message': 'Backlink added successfully!',
+        'backlink': new_backlink
+    })
+
+@app.route('/api/backlinks/delete/<int:backlink_id>', methods=['DELETE'])
+def delete_backlink(backlink_id):
+    """Delete a backlink by ID"""
+    try:
+        existing = get_backlink_by_id(backlink_id)
+        if not existing:
+            return jsonify({'error': 'Backlink not found'}), 404
+        
+        delete_backlink_from_db(backlink_id)
+        
+        return jsonify({
+            'success': True,
+            'message': f'Backlink {backlink_id} deleted successfully'
+        })
+    except Exception as e:
+        print(f"Error deleting: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/competitor-backlinks', methods=['POST'])
+def get_competitor_backlinks():
+    """Get competitor backlinks"""
+    data = request.json
+    if not data:
+        return jsonify({'error': 'No data provided'}), 400
+    
+    competitor_url = data.get('url')
+    if not competitor_url:
+        return jsonify({'error': 'Competitor URL is required'}), 400
+    
+    sample_competitor_backlinks = [
+        {
+            'source_url': 'https://www.w3schools.com/',
+            'domain_authority': 90,
+            'anchor_text': 'W3Schools tutorials'
+        },
+        {
+            'source_url': 'https://www.wikipedia.org/',
+            'domain_authority': 96,
+            'anchor_text': 'Wikipedia reference'
+        },
+        {
+            'source_url': 'https://stackoverflow.com/',
+            'domain_authority': 89,
+            'anchor_text': 'Stack Overflow Q&A'
+        },
+        {
+            'source_url': 'https://github.com/',
+            'domain_authority': 88,
+            'anchor_text': 'GitHub code repository'
+        },
+        {
+            'source_url': 'https://www.medium.com/',
+            'domain_authority': 86,
+            'anchor_text': 'Medium articles'
+        }
+    ]
+    
+    return jsonify(sample_competitor_backlinks)
+
+# Initialize database
+init_db()
+add_sample_data()
+ 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

@@ -51,6 +51,10 @@
                     <i data-lucide="check-square"></i> <span>SEO Site Audit</span>
                 </button>
             </nav>
+             <button class="nav-item" onclick="switchTab('backlink-tab')">
+                   <i data-lucide="link-2"></i> <span>Backlinks</span>
+                </button>
+            </nav>
             <div class="sidebar-footer">
                 <div id="auth-status-container">
                     <!-- Dynamic auth state will render here -->
@@ -709,6 +713,125 @@
                         </div>
                     </div>
                 </section>
+
+                <!-- TAB: Backlinks -->
+            <section id="backlink-tab" class="tab-panel">
+            <div class="card">
+            <div class="card-header">
+            <h3>🔗 Backlink Analysis</h3>
+            <p>Monitor and analyze your website's backlink profile. Track domain authority, follow/nofollow links, and competitor backlinks.</p>
+            </div>
+        
+               <!-- Add Backlink Form -->
+            <div class="form-row mt-20">
+            <div class="form-group flex-3">
+                <label for="backlink-source-url">Source URL</label>
+                <input type="url" id="backlink-source-url" placeholder="https://example.com/article">
+            </div>
+            <div class="form-group flex-3">
+                <label for="backlink-target-url">Target URL</label>
+                <input type="url" id="backlink-target-url" placeholder="https://yoursite.com/page">
+            </div>
+            <div class="form-group flex-2">
+                <label for="backlink-anchor-text">Anchor Text</label>
+                <input type="text" id="backlink-anchor-text" placeholder="Anchor text used">
+            </div>
+            <div class="form-group flex-1">
+                <label for="backlink-follow-type">Link Type</label>
+                <select id="backlink-follow-type">
+                    <option value="follow">Follow</option>
+                    <option value="nofollow">Nofollow</option>
+                </select>
+            </div>
+            <div class="form-group flex-1 align-self-end">
+                <button class="btn btn-primary w-full" onclick="addBacklink()">
+                    <i data-lucide="plus"></i> Add Backlink
+                </button>
+            </div>
+        </div>
+     </div>
+
+        <!-- Stats Cards -->
+        <div class="metrics-grid mt-20">
+        <div class="card metric-card">
+            <span class="metric-label">Total Backlinks</span>
+            <h3 id="bl-total">0</h3>
+            <span class="metric-trend"><i data-lucide="link-2"></i> All Links</span>
+        </div>
+        <div class="card metric-card">
+            <span class="metric-label">Follow Links</span>
+            <h3 id="bl-follow" style="color: var(--success);">0</h3>
+            <span class="metric-trend up"><i data-lucide="check-circle"></i> Passes SEO Value</span>
+        </div>
+        <div class="card metric-card">
+            <span class="metric-label">Nofollow Links</span>
+            <h3 id="bl-nofollow" style="color: var(--warning);">0</h3>
+            <span class="metric-trend"><i data-lucide="slash"></i> No SEO Value</span>
+        </div>
+        <div class="card metric-card">
+            <span class="metric-label">Avg Domain Authority</span>
+            <h3 id="bl-avg-da">0</h3>
+            <span class="metric-trend"><i data-lucide="bar-chart-2"></i> Authority Score</span>
+        </div>
+    </div>
+
+        <!-- Backlinks Table -->
+        <div class="card mt-20">
+        <div class="card-header flex-row justify-between align-center">
+            <h3>All Backlinks</h3>
+            <div class="flex-row gap-10">
+                <input type="text" id="bl-search" placeholder="Search backlinks..." style="padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-input); color: var(--color-text);">
+                <button class="btn btn-secondary btn-small" onclick="exportBacklinksCSV()">
+                    <i data-lucide="download"></i> Export CSV
+                </button>
+                <button class="btn btn-secondary btn-small" onclick="loadBacklinks()">
+                    <i data-lucide="refresh-cw"></i> Refresh
+                </button>
+            </div>
+          </div>
+         <div class="table-wrapper" style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; min-width: 800px;">
+                <thead>
+                    <tr style="background: #2c3e50; color: white;">
+                        <th style="padding: 12px 15px; text-align: left; font-size: 13px; text-transform: uppercase;">Source URL</th>
+                        <th style="padding: 12px 15px; text-align: left; font-size: 13px; text-transform: uppercase;">Target URL</th>
+                        <th style="padding: 12px 15px; text-align: left; font-size: 13px; text-transform: uppercase;">Anchor Text</th>
+                        <th style="padding: 12px 15px; text-align: right; font-size: 13px; text-transform: uppercase;">DA</th>
+                        <th style="padding: 12px 15px; text-align: left; font-size: 13px; text-transform: uppercase;">Type</th>
+                        <th style="padding: 12px 15px; text-align: left; font-size: 13px; text-transform: uppercase;">Date</th>
+                        <th style="padding: 12px 15px; text-align: left; font-size: 13px; text-transform: uppercase;">Quality</th>
+                        <th style="padding: 12px 15px; text-align: center; font-size: 13px; text-transform: uppercase;">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="bl-table-body">
+                    <!-- Data will be inserted here by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+        </div>
+
+    <!-- Competitor Analysis -->
+    <div class="card mt-20">
+        <div class="card-header">
+            <h3>🔍 Competitor Backlink Analysis</h3>
+            <p>Analyze your competitors' backlinks to find new opportunities</p>
+        </div>
+        <div class="form-row">
+            <div class="form-group flex-3">
+                <label for="bl-competitor-url">Competitor URL</label>
+                <input type="url" id="bl-competitor-url" placeholder="https://competitor.com">
+            </div>
+            <div class="form-group flex-1 align-self-end">
+                <button class="btn btn-primary w-full" onclick="analyzeCompetitorBacklinks()">
+                    <i data-lucide="search"></i> Analyze
+                </button>
+            </div>
+        </div>
+        <div id="bl-competitor-results" class="mt-20" style="display: none;">
+            <!-- Competitor results will appear here -->
+        </div>
+     </div>
+     </section>
 
             </div>
         </main>
