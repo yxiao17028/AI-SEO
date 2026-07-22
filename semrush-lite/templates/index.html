@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ApexSEO - AI Powered SEO Suite</title>
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons (CDN) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Chart.js (CDN) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Marked.js for markdown rendering (CDN) -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- Custom CSS Styling -->
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="brand">
+                <i data-lucide="zap" class="logo-icon"></i>
+                <h2>Apex<span>SEO</span></h2>
+            </div>
+            <nav class="nav-menu">
+                <button class="nav-item active" onclick="switchTab('gsc-tab')">
+                    <i data-lucide="globe"></i> <span>Search Console</span>
+                </button>
+                <button class="nav-item" onclick="switchTab('rank-tab')">
+                    <i data-lucide="trending-up"></i> <span>Rank Tracker</span>
+                </button>
+                <button class="nav-item" onclick="switchTab('intent-tab')">
+                    <i data-lucide="brain"></i> <span>AI Intent Classifier</span>
+                </button>
+                <button class="nav-item" onclick="switchTab('brief-tab')">
+                    <i data-lucide="file-text"></i> <span>AI Content Brief</span>
+                </button>
+                <button class="nav-item" onclick="switchTab('meta-tab')">
+                    <i data-lucide="sparkles"></i> <span>AI Meta Optimizer</span>
+                </button>
+                <button class="nav-item" onclick="switchTab('keyword-check-tab')">
+                    <i data-lucide="search"></i> <span>Keyword Checker</span>
+                </button>
+                <button class="nav-item" onclick="switchTab('keyword-magic-tab')">
+                    <i data-lucide="wand-2"></i> <span>Keyword Magic Tool</span>
+                </button>
+                <button class="nav-item" onclick="switchTab('audit-tab')">
+                    <i data-lucide="check-square"></i> <span>SEO Site Audit</span>
+                </button>
+                <button class="nav-item" onclick="switchTab('backlink-tab')">
+                    <i data-lucide="link-2"></i> <span>Backlink Checker</span>
+                </button>
+                <button class="nav-item" onclick="switchTab('backlink-gap-tab')">
+                    <i data-lucide="shuffle"></i> <span>Backlink Gap</span>
+                </button>
+            </nav>
+            <div class="sidebar-footer">
+                <div id="auth-status-container">
+                    <!-- Dynamic auth state will render here -->
+                    <span class="auth-badge offline"><i class="dot"></i> GSC Not Connected</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- HEADER -->
+            <header class="top-bar">
+                <h1 id="page-title">Google Search Console</h1>
+                <div class="api-indicators">
+                    <span class="api-badge success"><i data-lucide="check-circle"></i> SerpApi Active</span>
+                    <span class="api-badge success"><i data-lucide="check-circle"></i> Gemini AI Active</span>
+                </div>
+            </header>
+
+            <div class="content-body">
+
+                <!-- TAB 1: Google Search Console -->
+                <section id="gsc-tab" class="tab-panel active">
+                    <div id="gsc-unauth" class="card empty-state">
+                        <i data-lucide="lock" class="large-icon"></i>
+                        <h3>Connect your Google Search Console</h3>
+                        <p>After authorization, you can retrieve the actual impressions, CTR, and keyword rankings trend
+                            for your verified websites.</p>
+                        <a href="/auth/google" class="btn btn-primary btn-large">
+                            <i data-lucide="log-in"></i> Connect Google Account
+                        </a>
+                    </div>
+
+                    <div id="gsc-auth" class="gsc-dashboard" style="display: none;">
+                        <!-- Site Selector Bar -->
+                        <div class="card selector-card">
+                            <div class="flex-row justify-between align-center">
+                                <div class="form-group flex-1">
+                                    <label for="gsc-site-select">Select a Verified Website</label>
+                                    <div class="select-wrapper">
+                                        <select id="gsc-site-select" onchange="loadGSCDashboard()">
+                                            <option value="">Loading site list...</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <button class="btn btn-secondary" onclick="logoutGoogle()">
+                                    <i data-lucide="log-out"></i> Disconnect
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Summary Cards Row -->
+                        <div class="metrics-grid">
+                            <div class="card metric-card">
+                                <span class="metric-label">Total Clicks (30 days)</span>
+                                <h3 id="metric-clicks">0</h3>
+                                <span class="metric-trend up"><i data-lucide="trending-up"></i> Real GSC Data</span>
+                            </div>
+                            <div class="card metric-card">
+                                <span class="metric-label">Total Impressions (30 days)</span>
+                                <h3 id="metric-impressions">0</h3>
+                                <span class="metric-trend up"><i data-lucide="trending-up"></i> Search Views</span>
+                            </div>
+                            <div class="card metric-card">
+                                <span class="metric-label">Average CTR</span>
+                                <h3 id="metric-ctr">0%</h3>
+                                <span class="metric-trend"><i data-lucide="activity"></i> Click Efficiency</span>
+                            </div>
+                            <div class="card metric-card">
+                                <span class="metric-label">Average Position</span>
+                                <h3 id="metric-position">0.0</h3>
+                                <span class="metric-trend"><i data-lucide="navigation"></i> Avg Position</span>
+                            </div>
+                        </div>
+
+                        <!-- Chart Section -->
+                        <div class="card chart-card">
+                            <div class="card-header">
+                                <h3>Traffic Trend Chart (30 days)</h3>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="gsc-trend-chart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Data Split Layout -->
+                        <div class="data-split-grid">
+                            <!-- Left: Keywords Table -->
+                            <div class="card table-card">
+                                <div class="card-header">
+                                    <h3>Top Queries</h3>
+                                </div>
+                                <div class="table-wrapper">
+                                    <table id="gsc-queries-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Query</th>
+                                                <th class="text-right">Clicks</th>
+                                                <th class="text-right">Impressions</th>
+                                                <th class="text-right">CTR</th>
+                                                <th class="text-right">Position</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td colspan="5" class="text-center">Please select a site to load data
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Right: Pages Table -->
+                            <div class="card table-card">
+                                <div class="card-header">
+                                    <h3>Top Pages</h3>
+                                </div>
+                                <div class="table-wrapper">
+                                    <table id="gsc-pages-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Page URL</th>
+                                                <th class="text-right">Clicks</th>
+                                                <th class="text-right">Impressions</th>
+                                                <th class="text-right">CTR</th>
+                                                <th class="text-right">Position</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td colspan="5" class="text-center">Please select a site to load data
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- TAB 2: SerpApi Rank Tracker -->
+                <section id="rank-tab" class="tab-panel">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Real-time Google Rank Tracker</h3>
+                            <p>Enter your target keyword and domain. We will use SerpApi to fetch live Google search
+                                results and determine your rank.</p>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group flex-2">
+                                <label for="serp-keyword">Target Keyword</label>
+                                <input type="text" id="serp-keyword" placeholder="e.g., best running shoes">
+                            </div>
+                            <div class="form-group flex-2">
+                                <label for="serp-domain">Domain to Track (contains or domain)</label>
+                                <input type="text" id="serp-domain" placeholder="e.g., nike.com">
+                            </div>
+                            <div class="form-group flex-1 align-self-end">
+                                <button class="btn btn-primary w-full" onclick="runRankTracker()">
+                                    <i data-lucide="search"></i> Track Rank
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Loader -->
+                    <div id="rank-loader" class="loader-container" style="display: none;">
+                        <div class="spinner"></div>
+                        <p>Fetching live Google SERP and analyzing...</p>
+                    </div>
+
+                    <!-- Tracker Output Results -->
+                    <div id="rank-results" style="display: none;" class="mt-20">
+                        <div class="rank-hero-grid">
+                            <div class="card rank-hero-card">
+                                <span>Live Rank Result</span>
+                                <h2 id="rank-number">#15</h2>
+                                <p id="rank-status-desc">Ranked in the top 100 organic search results on Google.com</p>
+                            </div>
+                            <div class="card rank-summary-card">
+                                <h3>Page Performance Metrics</h3>
+                                <ul class="spec-list">
+                                    <li><strong>Keyword:</strong> <span id="res-kw">-</span></li>
+                                    <li><strong>Domain:</strong> <span id="res-domain">-</span></li>
+                                    <li><strong>Target URL:</strong> <a href="#" id="res-url" target="_blank">-</a></li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Google Ads Section -->
+                        <div class="card mt-20" id="res-ads-card" style="display: none;">
+                            <div class="card-header">
+                                <h3 class="flex-row align-center"><span class="badge badge-ads">Ads</span> Competitor
+                                    Paid Ads</h3>
+                            </div>
+                            <div class="ads-list" id="res-ads-list">
+                                <!-- Ads item template will load here -->
+                            </div>
+                        </div>
+
+                        <!-- SERP Details -->
+                        <div class="data-split-grid mt-20">
+                            <!-- Left: Organic Lists -->
+                            <div class="card flex-2">
+                                <div class="card-header">
+                                    <h3>Google Top 10 Organic Results (SERP)</h3>
+                                </div>
+                                <div class="serp-organic-list" id="res-organic-list">
+                                    <!-- List elements -->
+                                </div>
+                            </div>
+                            <!-- Right: Side Features -->
+                            <div class="flex-1 flex-column gap-20">
+                                <!-- People Also Ask -->
+                                <div class="card" id="res-paa-card" style="display: none;">
+                                    <div class="card-header">
+                                        <h3>People Also Ask (PAA)</h3>
+                                    </div>
+                                    <div class="paa-list" id="res-paa-list">
+                                        <!-- questions -->
+                                    </div>
+                                </div>
+                                <!-- Related Searches -->
+                                <div class="card" id="res-related-card" style="display: none;">
+                                    <div class="card-header">
+                                        <h3>Related Searches</h3>
+                                    </div>
+                                    <div class="tag-cloud" id="res-related-list">
+                                        <!-- tags -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- TAB 3: AI Search Intent Classifier -->
+                <section id="intent-tab" class="tab-panel">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>AI Search Intent Classifier</h3>
+                            <p>Enter your keyword list (one per line). AI will analyze each keyword's search intent
+                                (Informational, Commercial, Transactional, Navigational) to help shape your targeting
+                                strategy.</p>
+                        </div>
+                        <div class="form-group mt-20">
+                            <label for="intent-keywords">Keywords List (one per line, up to 20)</label>
+                            <textarea id="intent-keywords" rows="6"
+                                placeholder="e.g.,&#10;how to learn programming&#10;buy running shoes discount&#10;nike login&#10;best camera phones 2026"></textarea>
+                        </div>
+                        <div class="form-group mt-10">
+                            <button class="btn btn-primary" onclick="runIntentClassifier()">
+                                <i data-lucide="cpu"></i> Classify Search Intent
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Loader -->
+                    <div id="intent-loader" class="loader-container" style="display: none;">
+                        <div class="spinner"></div>
+                        <p>AI is analyzing keyword characteristics and intent...</p>
+                    </div>
+
+                    <!-- Intent Output -->
+                    <div class="card mt-20" id="intent-results-card" style="display: none;">
+                        <div class="card-header">
+                            <h3>Intent Analysis Report</h3>
+                        </div>
+                        <div class="table-wrapper">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Keyword</th>
+                                        <th>Search Intent</th>
+                                        <th>AI Rationale</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="intent-tbody">
+                                    <!-- Results rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- TAB 4: AI Content Brief -->
+                <section id="brief-tab" class="tab-panel">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>AI Competitor Analysis & Content Outline</h3>
+                            <p>Enter the core keyword you target. We will fetch top-ranking competitor pages from Google
+                                via SerpApi, and then use Gemini AI to perform a Content Gap analysis. This produces
+                                title suggestions, a structured outline, and semantically recommended keywords.</p>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group flex-3">
+                                <label for="brief-keyword">Core Target Keyword</label>
+                                <input type="text" id="brief-keyword"
+                                    placeholder="e.g., how to start self-learning software development in 2026">
+                            </div>
+                            <div class="form-group flex-1 align-self-end">
+                                <button class="btn btn-primary w-full" onclick="runContentBrief()">
+                                    <i data-lucide="book-open"></i> Generate Content Brief
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Loader -->
+                    <div id="brief-loader" class="loader-container" style="display: none;">
+                        <div class="spinner"></div>
+                        <p>Fetching Google competitor data and generating brief with Gemini AI...</p>
+                    </div>
+
+                    <!-- Output -->
+                    <div class="card mt-20" id="brief-results-card" style="display: none;">
+                        <div class="card-header flex-row justify-between align-center">
+                            <h3>Gemini AI Content Brief (Markdown)</h3>
+                            <button class="btn btn-secondary btn-small" onclick="copyBriefText()">
+                                <i data-lucide="copy"></i> Copy Full Brief
+                            </button>
+                        </div>
+                        <div class="markdown-body" id="brief-markdown-content">
+                            <!-- Rendered Markdown will load here -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- TAB 5: AI Meta Optimizer -->
+                <section id="meta-tab" class="tab-panel">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>AI Meta Tags Optimizer</h3>
+                            <p>Enter your URL, current Title, Description, and target keyword topic. AI will rewrite
+                                your meta tags to follow Google guidelines and improve click-through rates.</p>
+                        </div>
+                        <div class="form-row mt-20">
+                            <div class="form-group flex-2">
+                                <label for="meta-url">Page URL</label>
+                                <input type="text" id="meta-url" placeholder="example.com/blog/python-tips"
+                                    value="https://example.com/blog/python-beginners">
+                            </div>
+                            <div class="form-group flex-2">
+                                <label for="meta-topic">Target Topic / Keyword</label>
+                                <input type="text" id="meta-topic" placeholder="e.g., Python tutorial for beginners">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group flex-1">
+                                <label for="meta-title">Current Title</label>
+                                <input type="text" id="meta-title" placeholder="e.g., Python Guide"
+                                    value="How to Learn Python - Personal Experience Sharing">
+                            </div>
+                            <div class="form-group flex-1">
+                                <label for="meta-desc">Current Description</label>
+                                <input type="text" id="meta-desc"
+                                    placeholder="e.g., This article introduces how to learn Python..."
+                                    value="Today I will share how I learned Python, I feel Python is very interesting.">
+                            </div>
+                        </div>
+                        <div class="form-group mt-10">
+                            <button class="btn btn-primary" onclick="runMetaOptimizer()">
+                                <i data-lucide="sparkles"></i> Optimize Meta Tags
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Loader -->
+                    <div id="meta-loader" class="loader-container" style="display: none;">
+                        <div class="spinner"></div>
+                        <p>AI is analyzing and rewriting meta tags...</p>
+                    </div>
+
+                    <!-- Result Compare -->
+                    <div class="meta-compare-grid mt-20" id="meta-results-grid" style="display: none;">
+                        <div class="card">
+                            <div class="card-header"><span class="badge badge-warning">Before Optimization</span></div>
+                            <div class="preview-item">
+                                <label>Title</label>
+                                <div class="preview-box border-warning" id="meta-old-title">-</div>
+                            </div>
+                            <div class="preview-item mt-10">
+                                <label>Description</label>
+                                <div class="preview-box border-warning" id="meta-old-desc">-</div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header"><span class="badge badge-success">After AI Optimization</span>
+                            </div>
+                            <div class="preview-item">
+                                <label>Optimized Title</label>
+                                <div class="preview-box border-success text-success" id="meta-new-title">-</div>
+                            </div>
+                            <div class="preview-item mt-10">
+                                <label>Optimized Description</label>
+                                <div class="preview-box border-success text-success" id="meta-new-desc">-</div>
+                            </div>
+                        </div>
+
+                        <div class="card grid-full-width">
+                            <div class="card-header">
+                                <h3>AI Optimization Explanation</h3>
+                            </div>
+                            <div class="explanation-box" id="meta-explanation">-</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- TAB: Keyword Checker -->
+                <section id="keyword-check-tab" class="tab-panel">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Keyword Checker</h3>
+                            <p>Analyze search volume, CPC, keyword difficulty, global breakdown, and search intent for
+                                any keyword.</p>
+                        </div>
+                        <div class="form-row mt-20">
+                            <div class="form-group flex-3">
+                                <label for="kwcheck-input">Target Keyword</label>
+                                <input type="text" id="kwcheck-input" placeholder="e.g., running shoes">
+                            </div>
+                            <div class="form-group flex-1 align-self-end">
+                                <button class="btn btn-primary w-full" onclick="runKeywordChecker()">
+                                    <i data-lucide="search"></i> Check Keyword
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Loader -->
+                    <div id="kwcheck-loader" class="loader-container" style="display: none;">
+                        <div class="spinner"></div>
+                        <p>Analyzing search queries and competitor profiles...</p>
+                    </div>
+
+                    <!-- Results Panel -->
+                    <div id="kwcheck-results" style="display: none;" class="mt-20">
+                        <div class="card selector-card">
+                            <h2 class="text-bright">Keyword Checker Results for: <span id="kwcheck-target-name"
+                                    style="color: var(--accent);">-</span></h2>
+                        </div>
+
+                        <div class="metrics-grid mt-20">
+                            <div class="card metric-card">
+                                <span class="metric-label">Monthly Search Volume</span>
+                                <h3 id="kwcheck-volume">0</h3>
+                                <span class="metric-trend up"><i data-lucide="map-pin"></i> Malaysia (All)</span>
+                            </div>
+
+                            <div class="card metric-card flex-column">
+                                <span class="metric-label">Malaysia States Breakdown</span>
+                                <h3 id="kwcheck-global-volume">0</h3>
+                                <div id="kwcheck-global-split" class="progress-bar-list mt-10 w-full">
+                                    <!-- Dynamic country progress bars will load here -->
+                                </div>
+                            </div>
+
+                            <div class="card metric-card flex-column align-center justify-center">
+                                <span class="metric-label">Keyword Difficulty</span>
+                                <div class="gauge-wrapper mt-10">
+                                    <svg class="progress-ring" width="100" height="100">
+                                        <circle class="progress-ring__circle_bg" stroke="rgba(255,255,255,0.05)"
+                                            stroke-width="8" fill="transparent" r="38" cx="50" cy="50" />
+                                        <circle id="kwcheck-difficulty-ring" class="progress-ring__circle"
+                                            stroke="var(--primary)" stroke-width="8" stroke-dasharray="238.76"
+                                            stroke-dashoffset="238.76" fill="transparent" r="38" cx="50" cy="50"
+                                            transform="rotate(-90 50 50)"
+                                            style="transition: stroke-dashoffset 0.35s;" />
+                                    </svg>
+                                    <div class="gauge-value" id="kwcheck-difficulty-pct">0%</div>
+                                </div>
+                                <span class="metric-trend mt-10" id="kwcheck-difficulty-level">Medium</span>
+                            </div>
+
+                            <div class="card metric-card">
+                                <span class="metric-label">Search Intent</span>
+                                <h3 id="kwcheck-intent" class="mt-10">-</h3>
+                                <span class="metric-trend"><i data-lucide="brain"></i> User Intent</span>
+                            </div>
+
+                            <div class="card metric-card">
+                                <span class="metric-label">Cost-Per-Click (CPC)</span>
+                                <h3 id="kwcheck-cpc" style="color: var(--success);">$0.00</h3>
+                                <span class="metric-trend"><i data-lucide="dollar-sign"></i> Estimated CPC</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- TAB: Keyword Magic Tool -->
+                <section id="keyword-magic-tab" class="tab-panel">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Keyword Magic Tool</h3>
+                            <p>Generate a massive list of related keyword variations enriched with search volume, CPC,
+                                KD%, and intent insights.</p>
+                        </div>
+                        <div class="form-row mt-20">
+                            <div class="form-group flex-3">
+                                <label for="kwmagic-input">Seed Keyword</label>
+                                <input type="text" id="kwmagic-input" placeholder="e.g., best quality laptop">
+                            </div>
+                            <div class="form-group flex-1 align-self-end">
+                                <button class="btn btn-primary w-full" onclick="runKeywordMagic()">
+                                    <i data-lucide="wand-2"></i> Generate Keywords
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Loader -->
+                    <div id="kwmagic-loader" class="loader-container" style="display: none;">
+                        <div class="spinner"></div>
+                        <p>Expanding queries and estimating keyword metrics...</p>
+                    </div>
+
+                    <!-- Results Panel -->
+                    <div id="kwmagic-results" style="display: none;" class="card mt-20">
+                        <div class="card-header">
+                            <h3 class="text-bright">Keyword Results for: <span id="kwmagic-target-name"
+                                    style="color: var(--accent);">-</span></h3>
+                            <p id="kwmagic-summary">Showing related keywords</p>
+                        </div>
+
+                        <div class="table-wrapper">
+                            <table id="kwmagic-table">
+                                <thead>
+                                    <tr>
+                                        <th>Keyword</th>
+                                        <th>Intent</th>
+                                        <th class="text-right">Search Volume</th>
+                                        <th class="text-right">KD %</th>
+                                        <th class="text-right">CPC (USD)</th>
+                                        <th class="text-center">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="kwmagic-tbody">
+                                    <!-- Dynamic related keywords rows will render here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- TAB: SEO Site Audit -->
+                <section id="audit-tab" class="tab-panel">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>SEO Site Audit</h3>
+                            <p>Analyze any web page to audit its On-Page details, Technical standards, Page speed
+                                indicators, and Social presence.</p>
+                        </div>
+                        <div class="form-row mt-20">
+                            <div class="form-group flex-3">
+                                <label for="audit-input">Website URL</label>
+                                <input type="text" id="audit-input" placeholder="e.g., https://example.com"
+                                    value="https://example.com">
+                            </div>
+                            <div class="form-group flex-1 align-self-end">
+                                <button class="btn btn-primary w-full" onclick="runSiteAudit()">
+                                    <i data-lucide="play"></i> Start SEO Audit
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Loader -->
+                    <div id="audit-loader" class="loader-container" style="display: none;">
+                        <div class="spinner"></div>
+                        <p>Crawling target HTML and evaluating technical metrics...</p>
+                    </div>
+
+                    <!-- Results Panel -->
+                    <div id="audit-results" style="display: none;" class="audit-dashboard mt-20">
+                        <!-- Overview Card -->
+                        <div class="card audit-overview-card">
+                            <div class="audit-overall-score">
+                                <div class="gauge-wrapper">
+                                    <svg class="progress-ring" width="120" height="120">
+                                        <circle class="progress-ring__circle_bg" stroke="rgba(255,255,255,0.05)"
+                                            stroke-width="10" fill="transparent" r="48" cx="60" cy="60" />
+                                        <circle id="audit-score-ring" class="progress-ring__circle"
+                                            stroke="var(--success)" stroke-width="10" stroke-dasharray="301.6"
+                                            stroke-dashoffset="301.6" fill="transparent" r="48" cx="60" cy="60"
+                                            transform="rotate(-90 60 60)" style="transition: stroke-dashoffset 0.4s;" />
+                                    </svg>
+                                    <div class="gauge-value" id="audit-score-val" style="font-size: 1.5rem;">0</div>
+                                </div>
+                                <span style="font-size: 0.8rem; color: var(--color-text-muted); margin-top: 5px;">SEO
+                                    Score</span>
+                            </div>
+
+                            <div class="audit-categories">
+                                <div class="audit-category-row">
+                                    <span class="audit-category-label">On-Page SEO</span>
+                                    <div class="audit-category-bar">
+                                        <div id="audit-bar-onpage" class="audit-category-fill fill-primary"></div>
+                                    </div>
+                                    <span id="audit-score-onpage" class="audit-category-score">0%</span>
+                                </div>
+                                <div class="audit-category-row">
+                                    <span class="audit-category-label">Technical SEO</span>
+                                    <div class="audit-category-bar">
+                                        <div id="audit-bar-technical" class="audit-category-fill fill-success"></div>
+                                    </div>
+                                    <span id="audit-score-technical" class="audit-category-score">0%</span>
+                                </div>
+                                <div class="audit-category-row">
+                                    <span class="audit-category-label">Off-Page SEO</span>
+                                    <div class="audit-category-bar">
+                                        <div id="audit-bar-offpage" class="audit-category-fill fill-warning"></div>
+                                    </div>
+                                    <span id="audit-score-offpage" class="audit-category-score">0%</span>
+                                </div>
+                                <div class="audit-category-row">
+                                    <span class="audit-category-label">Social Media</span>
+                                    <div class="audit-category-bar">
+                                        <div id="audit-bar-social" class="audit-category-fill fill-accent"></div>
+                                    </div>
+                                    <span id="audit-score-social" class="audit-category-score">0%</span>
+                                </div>
+                            </div>
+
+                            <div class="audit-screenshot-box" id="audit-preview-box">
+                                <div class="flex-column align-center gap-10">
+                                    <i data-lucide="layout"
+                                        style="width: 24px; height: 24px; color: var(--primary);"></i>
+                                    <span id="audit-preview-domain">example.com</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recommendations Table -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Audit Checks & Recommendations</h3>
+                            </div>
+                            <div class="table-wrapper">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Type</th>
+                                            <th>Check</th>
+                                            <th>Status</th>
+                                            <th>Details & Next Steps</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="audit-issues-tbody">
+                                        <!-- Dynamic checks will render here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- TAB: Backlink Checker -->
+                <section id="backlink-tab" class="tab-panel">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Backlink Checker</h3>
+                            <p>Analyze backlink profile of any website domain. Discover domain authority, referring domains, backlink counts, and view a detailed report of backlink sources.</p>
+                        </div>
+                        <div class="form-row mt-20">
+                            <div class="form-group flex-3">
+                                <label for="backlink-input">Target Website Domain</label>
+                                <input type="text" id="backlink-input" placeholder="e.g., apple.com" value="apple.com">
+                            </div>
+                            <div class="form-group flex-1 align-self-end">
+                                <button class="btn btn-primary w-full" onclick="runBacklinkChecker()">
+                                    <i data-lucide="link-2"></i> Check Backlinks
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Loader -->
+                    <div id="backlink-loader" class="loader-container" style="display: none;">
+                        <div class="spinner"></div>
+                        <p>Analyzing backlink profile and crawling referring domains...</p>
+                    </div>
+
+                    <!-- Results Panel -->
+                    <div id="backlink-results" style="display: none;" class="mt-20">
+                        <div class="card selector-card">
+                            <h2 class="text-bright" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                                Backlink results for: 
+                                <a id="backlink-target-link" href="#" target="_blank" style="color: var(--accent); display: inline-flex; align-items: center; gap: 4px;">
+                                    <span id="backlink-target-name">-</span>
+                                    <i data-lucide="external-link" style="width: 16px; height: 16px;"></i>
+                                </a>
+                            </h2>
+                        </div>
+
+                        <div class="metrics-grid mt-20">
+                            <div class="card metric-card">
+                                <div class="flex-row justify-between align-center">
+                                    <span class="metric-label">Authority Score</span>
+                                    <i data-lucide="info" class="metric-label" style="width:14px; height:14px; cursor:pointer;" title="Authority Score (AS) measures the overall quality and SEO strength of the website domain on a scale from 0 to 100."></i>
+                                </div>
+                                <h3 id="backlink-as">0</h3>
+                            </div>
+
+                            <div class="card metric-card">
+                                <div class="flex-row justify-between align-center">
+                                    <span class="metric-label">Backlinks</span>
+                                    <i data-lucide="info" class="metric-label" style="width:14px; height:14px; cursor:pointer;" title="Total count of external hyperlinks pointing from other websites to this domain."></i>
+                                </div>
+                                <h3 id="backlink-count">0</h3>
+                            </div>
+
+                            <div class="card metric-card">
+                                <div class="flex-row justify-between align-center">
+                                    <span class="metric-label">Referring Domains</span>
+                                    <i data-lucide="info" class="metric-label" style="width:14px; height:14px; cursor:pointer;" title="Total number of unique domains that contain at least one backlink pointing to this domain."></i>
+                                </div>
+                                <h3 id="backlink-domains">0</h3>
+                            </div>
+
+                            <div class="card metric-card">
+                                <div class="flex-row justify-between align-center">
+                                    <span class="metric-label">Dofollow Backlinks</span>
+                                    <i data-lucide="info" class="metric-label" style="width:14px; height:14px; cursor:pointer;" title="Percentage of backlinks that pass SEO authority (search equity) to this domain (non-nofollow)."></i>
+                                </div>
+                                <h3 id="backlink-dofollow">0%</h3>
+                            </div>
+                        </div>
+
+                        <div class="card mt-20 flex-row justify-end align-center backlink-actions-bar" style="padding: 16px 24px;">
+                            <button class="btn btn-secondary btn-small" onclick="downloadBacklinkReport()">
+                                <i data-lucide="download"></i> Download Backlink Report
+                            </button>
+                        </div>
+
+                        <!-- Backlink Details Table -->
+                        <div class="card mt-20 table-card">
+                            <div class="table-wrapper" style="max-height: 500px; overflow-y: auto;">
+                                <table id="backlinks-table">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 60px;">No.</th>
+                                            <th style="width: 100px;">Page AS ⏷</th>
+                                            <th>Source page title and URL ⏷</th>
+                                            <th>Anchor text and target URL ⏷</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="backlinks-tbody">
+                                        <!-- Rows render here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- TAB: Backlink Gap -->
+                <section id="backlink-gap-tab" class="tab-panel">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Backlink Gap (Competitor Analysis)</h3>
+                            <p>Compare backlink authority metrics side-by-side and find valuable backlinks that link to your competitors but not to your target domain.</p>
+                        </div>
+                        <div class="form-row mt-20">
+                            <div class="form-group flex-2">
+                                <label for="backlink-gap-target">Your Website (Target)</label>
+                                <input type="text" id="backlink-gap-target" placeholder="e.g., apple.com" value="apple.com">
+                            </div>
+                            <div class="form-group flex-2">
+                                <label for="backlink-gap-competitors">Competitor Websites (comma-separated)</label>
+                                <input type="text" id="backlink-gap-competitors" placeholder="e.g., microsoft.com, google.com" value="microsoft.com, google.com">
+                            </div>
+                            <div class="form-group flex-1 align-self-end">
+                                <button class="btn btn-primary w-full" onclick="runBacklinkGapChecker()">
+                                    <i data-lucide="shuffle"></i> Find Gaps
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Loader -->
+                    <div id="backlink-gap-loader" class="loader-container" style="display: none;">
+                        <div class="spinner"></div>
+                        <p>Analyzing competitor backlink profiles and identifying link opportunities...</p>
+                    </div>
+
+                    <!-- Results Panel -->
+                    <div id="backlink-gap-results" style="display: none;" class="mt-20">
+                        <!-- Comparative Matrix Card -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h4>Backlink Comparison Matrix</h4>
+                            </div>
+                            <div class="table-wrapper mt-10">
+                                <table class="matrix-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Domain</th>
+                                            <th>Authority Score</th>
+                                            <th>Total Backlinks</th>
+                                            <th>Referring Domains</th>
+                                            <th>Dofollow Backlinks %</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="backlink-gap-matrix-tbody">
+                                        <!-- Competitor comparison rows render here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="card mt-20 flex-row justify-between align-center" style="padding: 16px 24px;">
+                            <h4 style="margin: 0; display: flex; align-items: center; gap: 8px;">
+                                <i data-lucide="link" style="color: var(--accent);"></i>
+                                Link Opportunities (Backlink Gap)
+                            </h4>
+                            <button class="btn btn-secondary btn-small" onclick="downloadBacklinkGapReport()">
+                                <i data-lucide="download"></i> Export CSV
+                            </button>
+                        </div>
+
+                        <!-- Gap Table -->
+                        <div class="card mt-10 table-card">
+                            <div class="table-wrapper" style="max-height: 500px; overflow-y: auto;">
+                                <table id="backlink-gap-table">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 80px;">Rank ⏷</th>
+                                            <th>Referring Domain</th>
+                                            <th>Competitor Overlap</th>
+                                            <th>Typical Anchor</th>
+                                            <th>Difficulty</th>
+                                            <th style="width: 150px; text-align: center;">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="backlink-gap-tbody">
+                                        <!-- Gap rows render here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+
+        <!-- AI Outreach Modal -->
+        <div id="outreach-modal" class="modal-overlay" style="display: none;">
+            <div class="modal-content card">
+                <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-glass); padding-bottom: 15px;">
+                    <h3 style="display: flex; align-items: center; gap: 8px; margin: 0;">
+                        <i data-lucide="mail" style="color: var(--accent);"></i>
+                        AI Link Outreach Draft
+                    </h3>
+                    <button class="modal-close-btn" onclick="closeOutreachModal()" style="background: none; border: none; color: var(--color-text-muted); font-size: 28px; cursor: pointer; line-height: 1;">&times;</button>
+                </div>
+                <div class="modal-body mt-20">
+                    <!-- Loader inside modal -->
+                    <div id="outreach-loader" class="loader-container" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 200px;">
+                        <div class="spinner"></div>
+                        <p style="margin-top: 15px;">Drafting highly personalized email pitch...</p>
+                    </div>
+                    
+                    <!-- Email draft container -->
+                    <div id="outreach-content" style="display: none;">
+                        <div class="form-group" style="display: flex; flex-direction: column; gap: 8px;">
+                            <label for="outreach-subject" style="color: var(--color-text-muted); font-size: 0.9rem;">Subject Line</label>
+                            <input type="text" id="outreach-subject" readonly class="text-bright" style="width: 100%; padding: 10px; background: rgba(0, 0, 0, 0.2); border: 1px solid var(--border-glass); border-radius: 6px; color: var(--color-text-bright); outline: none;">
+                        </div>
+                        <div class="form-group mt-15" style="display: flex; flex-direction: column; gap: 8px; margin-top: 15px;">
+                            <label for="outreach-body" style="color: var(--color-text-muted); font-size: 0.9rem;">Email Body</label>
+                            <textarea id="outreach-body" rows="12" readonly class="text-bright" style="width: 100%; padding: 12px; background: rgba(0, 0, 0, 0.2); border: 1px solid var(--border-glass); border-radius: 6px; color: var(--color-text-bright); outline: none; resize: vertical; font-family: monospace; line-height: 1.6;"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer mt-20 flex-row justify-end gap-10" style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; border-top: 1px solid var(--border-glass); padding-top: 15px;">
+                    <button class="btn btn-secondary" onclick="closeOutreachModal()">Close</button>
+                    <button class="btn btn-primary" id="copy-outreach-btn" onclick="copyOutreachPitch()">
+                        <i data-lucide="copy"></i> Copy Email
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Frontend Script Logic -->
+    <script src="/static/app.js"></script>
+</body>
+
+</html>
